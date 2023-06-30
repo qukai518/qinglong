@@ -16,7 +16,7 @@ import { Op, where, col as colFn, FindOptions } from 'sequelize';
 import path from 'path';
 import { TASK_PREFIX, QL_PREFIX } from '../config/const';
 import cronClient from '../schedule/client';
-import { runWithCpuLimit } from '../shared/pLimit';
+import taskLimit from '../shared/pLimit';
 import { spawn } from 'cross-spawn';
 
 @Service()
@@ -387,7 +387,7 @@ export default class CronService {
   }
 
   private async runSingle(cronId: number): Promise<number> {
-    return runWithCpuLimit(() => {
+    return taskLimit.runWithCpuLimit(() => {
       return new Promise(async (resolve: any) => {
         const cron = await this.getDb({ id: cronId });
         if (cron.status !== CrontabStatus.queued) {
